@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="header" style="background:#1d4ed8;padding:20px 24px;border-radius:8px 8px 0 0;">
+    <span style="color:#ffffff;font-size:20px;font-weight:600;" th:text="${brand}">Transporte</span>
+</div>
+
+<div th:fragment="footer" style="padding:16px 24px;color:#6b7280;font-size:12px;border-top:1px solid #e5e7eb;">
+    <p style="margin:0;">Este es un mensaje automático de <span th:text="${brand}">Transporte</span>. Por favor no respondas a este correo.</p>
+    <p style="margin:4px 0 0;">&copy; <span th:text="${year}">2026</span></p>
+</div>
+</body>
+</html>
