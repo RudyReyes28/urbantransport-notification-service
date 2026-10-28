@@ -3,6 +3,7 @@ package com.urbantransport.notification.repository;
 import com.urbantransport.notification.domain.EmailLogEntity;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,8 +12,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-public interface EmailLogRepository extends JpaRepository<EmailLogEntity, UUID> {
-
+public interface EmailLogRepository
+        extends JpaRepository<EmailLogEntity, UUID>, JpaSpecificationExecutor<EmailLogEntity> {
     /** Correos pendientes que ya les toca enviarse, los más antiguos primero. */
     @Query("""
             select e.id from EmailLogEntity e
@@ -42,4 +43,29 @@ public interface EmailLogRepository extends JpaRepository<EmailLogEntity, UUID> 
             """)
     boolean existsDuplicate(@Param("eventId") UUID eventId, @Param("template") String template,
                             @Param("recipient") String recipient);
+
+
+    /** Reencola un correo FAILED. Devuelve 0 si no existe o no está FAILED. */
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+            update EmailLogEntity e
+            set e.status = com.urbantransport.notification.domain.EmailStatus.PENDING,
+                e.attempts = 0, e.nextAttemptAt = :now
+            where e.id = :id
+              and e.status = com.urbantransport.notification.domain.EmailStatus.FAILED
+            """)
+    int requeue(@Param("id") UUID id, @Param("now") Instant now);
+
+    /** Reencola todos los FAILED. Devuelve cuántos fueron. */
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+            update EmailLogEntity e
+            set e.status = com.urbantransport.notification.domain.EmailStatus.PENDING,
+                e.attempts = 0, e.nextAttemptAt = :now
+            where e.status = com.urbantransport.notification.domain.EmailStatus.FAILED
+            """)
+    int requeueAllFailed(@Param("now") Instant now);
+
+    @Query("select e.status as status, count(e) as total from EmailLogEntity e group by e.status")
+    List<EmailStatusCount> countByStatus();
 }
