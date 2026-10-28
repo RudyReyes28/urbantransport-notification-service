@@ -11,4 +11,7 @@ public interface UserDirectoryRepository extends JpaRepository<UserDirectoryEnti
 
     /** Para avisar a los administradores de una sucursa. */
     List<UserDirectoryEntity> findByBranchIdAndRoleAndActiveTrue(UUID branchId, Role role);
+
+    /** Respaldo cuando una sucursal no tiene administradores en el directorio. */
+    List<UserDirectoryEntity> findByRoleAndActiveTrue(Role role);
 }

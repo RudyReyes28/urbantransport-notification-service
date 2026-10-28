@@ -7,6 +7,10 @@ public final class EventTypes {
     public static final String USER_UPDATED = "UserUpdated";
     public static final String USER_DEACTIVATED = "UserDeactivated";
 
+    // ticket-events
+    public static final String TICKET_PURCHASED = "TicketPurchased";
+    public static final String TICKET_CANCELLED = "TicketCancelled";
+
     private EventTypes() {
     }
 }
