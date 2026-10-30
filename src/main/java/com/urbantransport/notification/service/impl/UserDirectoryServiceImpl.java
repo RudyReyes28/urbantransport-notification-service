@@ -15,10 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.Locale;
-import java.util.UUID;
 
 /**
- * El directorio solo guarda personal. El cambio y el registro del eventId van en una sola transacción.
+ * El directorio guarda personal y clientes. El cambio y el registro del eventId van en una sola transacción.
  * Un evento incompleto lanza excepción para que el mensaje termine en el DLT.
  */
 @Slf4j
@@ -43,8 +42,8 @@ public class UserDirectoryServiceImpl implements UserDirectoryService {
         }
 
         Role role = parseRole(payload.role());
-        if (role == null || role == Role.CUSTOMER) {
-            log.debug("Usuario {} con rol {} no entra al directorio", payload.userId(), payload.role());
+        if (role == null) {
+            log.debug("Usuario {} con rol desconocido {} no entra al directorio", payload.userId(), payload.role());
         } else {
             upsert(event, payload, role);
         }
@@ -66,6 +65,7 @@ public class UserDirectoryServiceImpl implements UserDirectoryService {
         entity.setFullName(payload.fullName());
         entity.setRole(role);
         entity.setBranchId(payload.branchId());
+        entity.setCustomerId(payload.customerId());
         entity.setActive(active);
         entity.setLastEventAt(occurredAt);
         userDirectoryRepository.save(entity);

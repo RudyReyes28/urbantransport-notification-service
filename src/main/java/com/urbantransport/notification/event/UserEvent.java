@@ -16,6 +16,7 @@ public record UserEvent(UUID eventId, String eventType, Instant occurredAt, User
             String fullName,
             String role,
             UUID branchId,
+            UUID customerId,
             boolean active) {
     }
 }

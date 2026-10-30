@@ -33,6 +33,10 @@ public class UserDirectoryEntity {
     @Column(name = "branch_id")
     private UUID branchId;
 
+    /** Solo para clientes: id del cliente en customer-service. */
+    @Column(name = "customer_id")
+    private UUID customerId;
+
     @Column(nullable = false)
     private boolean active;
 

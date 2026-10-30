@@ -6,5 +6,6 @@ import java.time.Duration;
 
 /** Eventos más viejos que esto no generan correo (quedan SKIPPED): evita reenviar el historial al arrancar. */
 @ConfigurationProperties(prefix = "notification.events")
-public record NotificationEventProperties(Duration maxPurchaseAge, Duration maxCancellationAge) {
+public record NotificationEventProperties(Duration maxPurchaseAge, Duration maxCancellationAge,
+                                          Duration maxRentalEventAge) {
 }
