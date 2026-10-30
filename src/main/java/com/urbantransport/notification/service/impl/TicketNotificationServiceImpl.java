@@ -10,10 +10,7 @@ import com.urbantransport.notification.event.TicketCancelledEvent;
 import com.urbantransport.notification.event.TicketPurchasedEvent;
 import com.urbantransport.notification.repository.ProcessedEventRepository;
 import com.urbantransport.notification.repository.UserDirectoryRepository;
-import com.urbantransport.notification.service.EmailQueueService;
-import com.urbantransport.notification.service.EmailRenderer;
-import com.urbantransport.notification.service.EmailRequest;
-import com.urbantransport.notification.service.TicketNotificationService;
+import com.urbantransport.notification.service.*;
 import com.urbantransport.notification.util.EmailFormats;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -52,6 +49,8 @@ public class TicketNotificationServiceImpl implements TicketNotificationService 
     private final NotificationEventProperties eventProperties;
     private final Clock clock;
 
+    private final TripPassengerService tripPassengerService;
+
     // ---------- compra ----------
 
     @Override
@@ -65,6 +64,7 @@ public class TicketNotificationServiceImpl implements TicketNotificationService 
                 || payload.trip().departureAt() == null || payload.tickets() == null || payload.tickets().isEmpty()) {
             throw new IllegalArgumentException("TicketPurchased incompleto: " + eventId);
         }
+        tripPassengerService.record(payload);
 
         TicketPurchasedEvent.Trip trip = payload.trip();
         String route = trip.originName() + " → " + trip.destinationName();
@@ -115,6 +115,7 @@ public class TicketNotificationServiceImpl implements TicketNotificationService 
             throw new IllegalArgumentException("TicketCancelled incompleto: " + eventId);
         }
 
+        tripPassengerService.remove(payload.ticketId());
         boolean cash = REFUND_CASH.equals(payload.refundMethod());
         String template = cash ? TEMPLATE_CANCELLED_CASH : TEMPLATE_CANCELLED_WALLET;
         String route = payload.originName() + " → " + payload.destinationName();

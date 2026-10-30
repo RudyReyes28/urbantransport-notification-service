@@ -4,5 +4,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "notification.kafka")
 public record NotificationKafkaProperties(String identityEventsTopic, String ticketEventsTopic,
-                                          String fleetEventsTopic, String rentalEventsTopic) {
+                                          String fleetEventsTopic, String rentalEventsTopic,
+                                          String tripEventsTopic, String paymentEventsTopic) {
 }

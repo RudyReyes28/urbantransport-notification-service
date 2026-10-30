@@ -5,6 +5,7 @@ import com.urbantransport.notification.domain.UserDirectoryEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface UserDirectoryRepository extends JpaRepository<UserDirectoryEntity, UUID> {
@@ -14,4 +15,7 @@ public interface UserDirectoryRepository extends JpaRepository<UserDirectoryEnti
 
     /** Respaldo cuando una sucursal no tiene administradores en el directorio. */
     List<UserDirectoryEntity> findByRoleAndActiveTrue(Role role);
+
+    /** Cliente por su id en customer-service (los eventos de cartera lo traen). */
+    Optional<UserDirectoryEntity> findByCustomerId(UUID customerId);
 }

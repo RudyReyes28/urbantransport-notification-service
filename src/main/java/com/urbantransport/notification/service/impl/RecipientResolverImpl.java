@@ -40,4 +40,16 @@ public class RecipientResolverImpl implements RecipientResolver {
                 .map(user -> List.of(user.getEmail()))
                 .orElse(List.of());
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<String> customerEmail(UUID customerId) {
+        if (customerId == null) {
+            return List.of();
+        }
+        return userDirectoryRepository.findByCustomerId(customerId)
+                .filter(UserDirectoryEntity::isActive)
+                .map(user -> List.of(user.getEmail()))
+                .orElse(List.of());
+    }
 }

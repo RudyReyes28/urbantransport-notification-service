@@ -1,5 +1,6 @@
 package com.urbantransport.notification.event;
 
+import com.urbantransport.notification.service.PrivateTripService;
 import com.urbantransport.notification.service.RentalNotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,7 @@ public class RentalEventsListener {
 
     private final JsonMapper jsonMapper;
     private final RentalNotificationService rentalNotificationService;
+    private final PrivateTripService privateTripService;
 
     @KafkaListener(topics = "${notification.kafka.rental-events-topic}")
     public void onEvent(String message) {
@@ -36,6 +38,10 @@ public class RentalEventsListener {
             case EventTypes.RENTAL_PAID -> {
                 RentalEvent event = jsonMapper.readValue(message, RentalEvent.class);
                 rentalNotificationService.handlePaid(event.eventId(), event.occurredAt(), event.payload());
+            }
+            case EventTypes.RENTAL_ASSIGNED -> {
+                RentalAssignedEvent event = jsonMapper.readValue(message, RentalAssignedEvent.class);
+                privateTripService.recordAssignment(event.eventId(), event.occurredAt(), event.payload());
             }
             default -> log.debug("Evento {} ignorado", type);
         }
