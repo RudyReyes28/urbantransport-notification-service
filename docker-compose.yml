@@ -1,0 +1,20 @@
+services:
+  notification-service:
+    image: microservice-notification:latest
+    container_name: notification-service
+    restart: unless-stopped
+    env_file:
+      - .env.prod
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - TZ=America/Guatemala
+      - JAVA_TOOL_OPTIONS=-Xms256m -Xmx512m
+    mem_limit: 768m
+    ports:
+      - '8089:8089'
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8089/actuator/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
