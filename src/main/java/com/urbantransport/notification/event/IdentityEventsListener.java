@@ -1,5 +1,6 @@
 package com.urbantransport.notification.event;
 
+import com.urbantransport.notification.service.PasswordSetupNotificationService;
 import com.urbantransport.notification.service.UserDirectoryService;
 import com.urbantransport.notification.service.WelcomeNotificationService;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ public class IdentityEventsListener {
     private final JsonMapper jsonMapper;
     private final UserDirectoryService userDirectoryService;
     private final WelcomeNotificationService welcomeNotificationService;
+    private final PasswordSetupNotificationService passwordSetupNotificationService;
 
     @KafkaListener(topics = "${notification.kafka.identity-events-topic}")
     public void onEvent(String message) {
@@ -30,6 +32,8 @@ public class IdentityEventsListener {
             }
             case EventTypes.USER_UPDATED, EventTypes.USER_DEACTIVATED ->
                     userDirectoryService.applyUserEvent(jsonMapper.readValue(message, UserEvent.class));
+            case EventTypes.PASSWORD_SETUP_REQUESTED -> passwordSetupNotificationService.handlePasswordSetupRequested(
+                    jsonMapper.readValue(message, PasswordSetupRequestedEvent.class));
             default -> log.debug("Evento {} ignorado", type);
         }
     }

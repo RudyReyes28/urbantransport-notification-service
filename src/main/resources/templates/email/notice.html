@@ -19,6 +19,14 @@
             </tr>
         </table>
 
+        <p th:if="${actionUrl != null}" style="margin:24px 0 0;text-align:center;">
+            <a th:href="${actionUrl}" th:text="${actionLabel}"
+               th:style="'display:inline-block;padding:12px 24px;border-radius:6px;color:#ffffff;font-weight:600;text-decoration:none;background:' + ${accent}">Acción</a>
+        </p>
+        <p th:if="${actionUrl != null}" style="margin:12px 0 0;color:#6b7280;font-size:12px;word-break:break-all;">
+            Si el botón no funciona, copia este enlace en tu navegador: <span th:text="${actionUrl}">enlace</span>
+        </p>
+
         <p th:if="${note != null}" style="margin:16px 0 0;color:#6b7280;font-size:13px;" th:text="${note}">Nota.</p>
     </div>
     <div th:replace="~{email/fragments :: footer}"></div>

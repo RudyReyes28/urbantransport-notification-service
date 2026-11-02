@@ -6,6 +6,7 @@ public final class EventTypes {
     public static final String USER_CREATED = "UserCreated";
     public static final String USER_UPDATED = "UserUpdated";
     public static final String USER_DEACTIVATED = "UserDeactivated";
+    public static final String PASSWORD_SETUP_REQUESTED = "PasswordSetupRequested";
 
     // ticket-events
     public static final String TICKET_PURCHASED = "TicketPurchased";

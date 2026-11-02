@@ -14,9 +14,16 @@ public class NoticeView {
     String intro;
     List<NoticeRow> rows;
     String note;
+    String actionLabel;
+    String actionUrl;
 
     public static NoticeView of(Tone tone, String heading, String intro, List<NoticeRow> rows, String note) {
-        return new NoticeView(tone, heading, intro, rows == null ? List.of() : rows, note);
+        return new NoticeView(tone, heading, intro, rows == null ? List.of() : rows, note, null, null);
+    }
+
+    public static NoticeView withAction(Tone tone, String heading, String intro, List<NoticeRow> rows, String note,
+                                        String actionLabel, String actionUrl) {
+        return new NoticeView(tone, heading, intro, rows == null ? List.of() : rows, note, actionLabel, actionUrl);
     }
 
     public Map<String, Object> toVariables() {
@@ -26,6 +33,8 @@ public class NoticeView {
         variables.put("intro", intro);
         variables.put("rows", rows);
         variables.put("note", note);
+        variables.put("actionLabel", actionLabel);
+        variables.put("actionUrl", actionUrl);
         return variables;
     }
 }
