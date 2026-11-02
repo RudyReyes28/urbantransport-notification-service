@@ -98,6 +98,30 @@ class KafkaEventsIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void passwordSetupRequested_queuesEmailWithTheLink() throws Exception {
+        UUID userId = UUID.randomUUID();
+        UUID eventId = UUID.randomUUID();
+        String setupUrl = "http://localhost:4200/set-password?token=" + UUID.randomUUID();
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("userId", userId.toString());
+        payload.put("email", "Chofer@Mail.com");
+        payload.put("fullName", "Juan Perez");
+        payload.put("role", "DRIVER");
+        payload.put("purpose", "ACCOUNT_CREATED");
+        payload.put("setupUrl", setupUrl);
+        payload.put("expiresAt", Instant.now().plusSeconds(3600).toString());
+
+        send(identityTopic, userId, envelope(eventId, EventTypes.PASSWORD_SETUP_REQUESTED, userId, Instant.now(), payload));
+
+        await().atMost(TIMEOUT).untilAsserted(() -> assertEquals(1, emailsOfEvent(eventId).size()));
+        EmailLogEntity email = emailsOfEvent(eventId).getFirst();
+        assertEquals("password-setup", email.getTemplate());
+        assertEquals("chofer@mail.com", email.getRecipient());
+        assertEquals(EmailStatus.PENDING, email.getStatus());
+        assertTrue(email.getBody().contains(setupUrl));
+    }
+
+    @Test
     void driverRegisteredThenDeactivated_updatesDirectory() throws Exception {
         UUID driverId = UUID.randomUUID();
         UUID branchId = UUID.randomUUID();

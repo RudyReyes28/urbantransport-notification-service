@@ -62,6 +62,21 @@ class ThymeleafEmailRendererTest {
 
         assertFalse(html.contains("<table"));
         assertFalse(html.contains("font-size:13px"));
+        assertFalse(html.contains("<a "));
+    }
+
+    @Test
+    void notice_withAction_rendersButtonAndPlainLink() {
+        String url = "http://localhost:4200/set-password?token=abc";
+        NoticeView view = NoticeView.withAction(Tone.INFO, "Crea tu contraseña", "Hola", null, null,
+                "Crear contraseña", url);
+
+        String html = renderer.render("notice", view.toVariables());
+
+        assertTrue(html.contains("href=\"" + url + "\""));
+        assertTrue(html.contains(">Crear contraseña</a>"));
+        assertTrue(html.contains(">" + url + "</span>"));
+        assertTrue(html.contains("background:" + Tone.INFO.getHex()));
     }
 
     @Test
