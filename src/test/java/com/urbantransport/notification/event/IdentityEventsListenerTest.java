@@ -1,5 +1,6 @@
 package com.urbantransport.notification.event;
 
+import com.urbantransport.notification.service.PasswordSetupNotificationService;
 import com.urbantransport.notification.service.UserDirectoryService;
 import com.urbantransport.notification.service.WelcomeNotificationService;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,6 +48,9 @@ class IdentityEventsListenerTest {
     @Mock
     private WelcomeNotificationService welcomeNotificationService;
 
+    @Mock
+    private PasswordSetupNotificationService passwordSetupNotificationService;
+
     @Captor
     private ArgumentCaptor<UserEvent> eventCaptor;
 
@@ -54,7 +58,8 @@ class IdentityEventsListenerTest {
 
     @BeforeEach
     void setUp() {
-        listener = new IdentityEventsListener(jsonMapper, userDirectoryService, welcomeNotificationService);
+        listener = new IdentityEventsListener(jsonMapper, userDirectoryService, welcomeNotificationService,
+                passwordSetupNotificationService);
     }
 
     @Test
@@ -90,12 +95,37 @@ class IdentityEventsListenerTest {
         verifyNoInteractions(welcomeNotificationService);
     }
 
+    @Test
+    void passwordSetupRequested_isSentToTheSetupNotification() {
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("userId", USER_ID.toString());
+        payload.put("email", "juan@mail.com");
+        payload.put("fullName", "Juan Perez");
+        payload.put("role", "DRIVER");
+        payload.put("purpose", "RESEND_REQUESTED");
+        payload.put("setupUrl", "http://localhost:4200/set-password?token=abc");
+        payload.put("expiresAt", OCCURRED_AT.plusSeconds(3600).toString());
+
+        listener.onEvent(message(EventTypes.PASSWORD_SETUP_REQUESTED, payload));
+
+        ArgumentCaptor<PasswordSetupRequestedEvent> captor = ArgumentCaptor.forClass(PasswordSetupRequestedEvent.class);
+        verify(passwordSetupNotificationService).handlePasswordSetupRequested(captor.capture());
+        assertEquals(EVENT_ID, captor.getValue().eventId());
+        assertEquals(USER_ID, captor.getValue().payload().userId());
+        assertEquals("juan@mail.com", captor.getValue().payload().email());
+        assertEquals("DRIVER", captor.getValue().payload().role());
+        assertEquals("RESEND_REQUESTED", captor.getValue().payload().purpose());
+        assertEquals("http://localhost:4200/set-password?token=abc", captor.getValue().payload().setupUrl());
+        assertEquals(OCCURRED_AT.plusSeconds(3600), captor.getValue().payload().expiresAt());
+        verifyNoInteractions(userDirectoryService, welcomeNotificationService);
+    }
+
     @ParameterizedTest
     @ValueSource(strings = {"BranchCreated", "BranchUpdated", ""})
     void otherEvent_isIgnored(String eventType) {
         listener.onEvent(message(eventType, payload("CASHIER", BRANCH_ID, true)));
 
-        verifyNoInteractions(userDirectoryService, welcomeNotificationService);
+        verifyNoInteractions(userDirectoryService, welcomeNotificationService, passwordSetupNotificationService);
     }
 
     @Test

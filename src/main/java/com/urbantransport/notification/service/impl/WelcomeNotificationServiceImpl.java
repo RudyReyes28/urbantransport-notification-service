@@ -53,7 +53,7 @@ public class WelcomeNotificationServiceImpl implements WelcomeNotificationServic
                     "Recarga tu cartera para comprar boletos y solicitar alquileres de buses.")
                     : NoticeView.of(Tone.INFO, "Tu cuenta fue creada",
                     "Hola" + name + ", se creó tu cuenta de acceso al sistema.", rows,
-                    "Ingresa con este correo y la contraseña que te entregó tu administrador.");
+                    "Te enviamos otro correo con el enlace para crear tu contraseña.");
             eventMailer.send(new MailRequest(event.eventId(), EventTypes.USER_CREATED, payload.userId(), TEMPLATE,
                     SUBJECT, view, List.of(payload.email()), null));
         }

@@ -14,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -90,6 +91,16 @@ class WelcomeNotificationServiceImplTest {
             assertEquals(Tone.INFO, mailCaptor.getValue().view().getTone());
             assertEquals("Hola Luis, se creó tu cuenta de acceso al sistema.", mailCaptor.getValue().view().getIntro());
             assertEquals(label, rowValue(mailCaptor.getValue(), "Tipo de cuenta"));
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = {"SYSTEM_ADMIN", "BRANCH_ADMIN", "CASHIER", "DRIVER"})
+        void staffWelcome_pointsToThePasswordSetupEmail(String role) {
+            service.handleUserCreated(event(NOW, payload(role, "Luis", true)));
+
+            verify(eventMailer).send(mailCaptor.capture());
+            assertEquals("Te enviamos otro correo con el enlace para crear tu contraseña.",
+                    mailCaptor.getValue().view().getNote());
         }
 
         @Test
